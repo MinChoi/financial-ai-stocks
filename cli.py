@@ -1,5 +1,10 @@
 import argparse
+import pandas as pd
 from src.data_loader import get_price_data, add_moving_averages
+from src.indicators import add_returns, add_rolling_volatility
+from src.providers_yahoo import YahooProvider
+# later:
+# from src.providers_alpha import AlphaVantageProvider
 
 # examples
 # python cli.py TSLA
@@ -50,7 +55,16 @@ def main():
     args = parse_args()
 
     print(f"Downloading {args.ticker} (period={args.period}, interval={args.interval})...")
-    df = get_price_data(args.ticker, period=args.period, interval=args.interval)
+
+    provider = YahooProvider()
+    # provider = AlphaVantageProvider(api_key=os.getenv("ALPHA_VANTAGE_KEY"))
+
+    df = provider.get_price_data(args.ticker, period=args.period, interval=args.interval)
+
+
+    # ######
+    # print("ticker arg:", args.ticker, type(args.ticker))
+    # ######
 
     if df.empty:
         print("❌ No data returned. Check ticker symbol or network.")
@@ -76,6 +90,19 @@ def main():
             val = latest.get(col)
             if val is not None:
                 print(f"- {col}: {val}")
+
+    df = add_returns(df)
+    df = add_rolling_volatility(df, window=20)
+    vol_col = "Volatility20"
+    latest = df.dropna().iloc[-1] if not df.dropna().empty else df.iloc[-1]
+    if vol_col in df.columns:
+        # print('___')
+        # print(latest.get(vol_col))
+        print(f"- {vol_col}: {latest[vol_col] * 100}%")
+        # print('___')
+        # min) error, how do i fix notna?
+        # if pd.notna(latest.get(vol_col)):
+        #    print(f"- {vol_col}: {latest[vol_col] * 100:.1f}%")
 
     print('\n')
 
