@@ -3,6 +3,7 @@ import pandas as pd
 from src.data_loader import get_price_data, add_moving_averages
 from src.indicators import add_returns, add_rolling_volatility
 from src.providers_yahoo import YahooProvider
+from src.plotter import plot_price_with_mas, plot_volume
 # later:
 # from src.providers_alpha import AlphaVantageProvider
 
@@ -48,6 +49,11 @@ def parse_args():
         type=int,
         default=5,
         help="How many rows to print from the end. Default: 5"
+    )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Show charts (Close + moving averages, plus volume)"
     )
     return parser.parse_args()
 
@@ -103,6 +109,10 @@ def main():
         # min) error, how do i fix notna?
         # if pd.notna(latest.get(vol_col)):
         #    print(f"- {vol_col}: {latest[vol_col] * 100:.1f}%")
+
+    if args.plot:
+        plot_price_with_mas(df, args.ticker, ma_windows=tuple(args.windows))
+        plot_volume(df, args.ticker)
 
     print('\n')
 
