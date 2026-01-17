@@ -4,6 +4,8 @@ from src.data_loader import get_price_data, add_moving_averages
 from src.indicators import add_returns, add_rolling_volatility
 from src.providers_yahoo import YahooProvider
 from src.plotter import plot_price_with_mas, plot_volume
+from src.summary import generate_basic_summary
+
 # later:
 # from src.providers_alpha import AlphaVantageProvider
 
@@ -50,10 +52,20 @@ def parse_args():
         default=5,
         help="How many rows to print from the end. Default: 5"
     )
+
+    # python cli.py AAPL --period 6mo --plot
+    # python cli.py BHP.AX --period 1y --plot
     parser.add_argument(
         "--plot",
         action="store_true",
         help="Show charts (Close + moving averages, plus volume)"
+    )
+
+    # python cli.py AAPL --period 6mo --summary
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Print a plain-English rule-based summary"
     )
     return parser.parse_args()
 
@@ -113,6 +125,10 @@ def main():
     if args.plot:
         plot_price_with_mas(df, args.ticker, ma_windows=tuple(args.windows))
         plot_volume(df, args.ticker)
+
+    if args.summary:
+        print()
+        print(generate_basic_summary(df, args.ticker))
 
     print('\n')
 
