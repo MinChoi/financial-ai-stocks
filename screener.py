@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import os
 
 from src.providers_yahoo import YahooProvider
 from src.data_loader import add_moving_averages
@@ -12,6 +13,7 @@ def parse_args():
     p.add_argument("--period", default="6mo", help="Data period: 1mo, 3mo, 6mo, 1y, 2y ...")
     p.add_argument("--interval", default="1d", help="Data interval: 1d, 1h ...")
     p.add_argument("--min_rows", type=int, default=60, help="Minimum rows required to score")
+    p.add_argument("--out", default=None, help="Optional CSV output path, e.g. results.csv")
     return p.parse_args()
 
 
@@ -120,6 +122,12 @@ def main():
     if "Score" in out.columns:
         out["Score"] = pd.to_numeric(out["Score"], errors="coerce")
         out = out.sort_values(by=["Score"], ascending=False, na_position="last")
+
+    if args.out:
+        # out.to_csv(args.out, index=False)
+        output_path = os.path.join('outputs', "screen_results.csv")
+        out.to_csv(output_path, index=False)
+        print(f"\n✅ Saved results to {args.out}")
 
     # Pretty print
     cols = ["Ticker", "Close", "AboveMA20", "AboveMA50", "MA20>MA50", "Vol20%", "Score", "Error"]
