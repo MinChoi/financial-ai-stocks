@@ -22,6 +22,31 @@ def score_ticker(df: pd.DataFrame) -> dict:
     +1 if Close > MA50
     +1 if MA20 > MA50
     -1 if Volatility20 > 0.40 (40%)
+
+    Ticker      Close AboveMA20 AboveMA50 MA20>MA50    Vol20%  Score
+BHP.AX  49.419998       Yes       Yes       Yes 26.778051      3
+  AAPL 259.480011       Yes        No        No 20.157431      1
+  TSLA 430.410004        No        No        No 39.770429      0
+CBA.AX 151.479996        No        No        No 20.074730      0
+  MSFT 430.290009        No        No        No 42.680212     -1
+
+    // analysing from Chatgpt
+    BHP.AX — Score 3 (strongest by your rules)
+        AboveMA20: Yes
+        AboveMA50: Yes
+        MA20 > MA50: Yes
+        Vol20% ~ 20% (reasonable)
+        ✅ This matches a simple “uptrend + momentum” definition.
+    TSLA — Score 1
+        Close below MA20 and MA50 (down/weak trend)
+        But MA20 > MA50 = Yes (short-term still above mid-term, could be recent drop)
+        Volatility is higher (~31%)
+        So it’s “mixed”: momentum structure might be positive, but price is currently below key averages.
+    AAPL / MSFT / CBA.AX — Score 0
+        All are below MA20 and MA50
+        MA20 <= MA50
+        Vol is not bad, but trend rules are negative → score stays 0
+
     """
     latest = df.dropna().iloc[-1]
 
